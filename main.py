@@ -5,6 +5,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import signal
 import datetime
 import json
 
@@ -72,15 +73,16 @@ def ROC(Start,End):
     clogstart = np.where(np.diff(clogpoint)>0,200,0)
     index = np.arange(len(clogstart))
     index = index[clogstart>0]
-    var = 327
-    arraystime,arraysvalueC,arraysvalueA =  np.zeros((3,len(index),var))
+    var = 350
+    arraystime,arraysvalueC,arraysvalueA,arraysdiff=  np.zeros((4,len(index),var))
     for i in range(len(arraystime)):
+        arraysdiff[i] = diff[index[i]-var:index[i]]
         arraystime[i] = timeAinterp[index[i]-var:index[i]]
         arraysvalueC[i] = Cinterp[index[i]-var:index[i]]
         arraysvalueA[i] = Ainterp[index[i]-var:index[i]]
     for i in range(len(arraystime)):
-        plt.plot(arraystime[i],arraysvalueA[i])
-        plt.plot(arraystime[i],arraysvalueA[i])
+        plt.plot(arraystime[i],filter(arraysdiff[i],arraystime[i],dt))
+        plt.plot(arraystime[i],arraysdiff[i])
         plt.show()
     plt.plot(timeAinterp[:-1],clogstart,label="clogdetect")
     plt.plot(timeAinterp,diff,label="diff")
@@ -90,6 +92,16 @@ def ROC(Start,End):
     # plt.show()
     return None
 
+def filter(Signal,Time,dt):
+    order = 5
+    sampling_freq = dt
+    cutoff_freq = 100
+    sampling_duration = Time[-1]
+    time = Time
+    normalized_cutoff_freq = 2 * cutoff_freq / sampling_freq
+    numerator_coeffs, denominator_coeffs = signal.butter(order, normalized_cutoff_freq)
+    filtered_signal = signal.lfilter(numerator_coeffs, denominator_coeffs, Signal)
+    return filtered_signal
 
 if __name__ == '__main__':
     ROC(0,End)
