@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 
+End=[805440,846848]
 
 Names=['valve (A) timestamp', 'valve (A) output value',
        'flow setpoint (B) timestamp', 'flow setpoint (B) value',
@@ -16,7 +17,6 @@ def ExcelPickler():
     csvreader = pd.read_excel('Hackathon_Nobian_dataset.xlsx')
     csvreader.to_pickle('cached_dataframe.pkl')
     return None
-
 
 def Removebad():
     data = pd.DataFrame(pd.read_pickle('cached_dataframe.pkl'))
@@ -38,24 +38,26 @@ def Removebad():
 
 
 def Plot():
-    data=pd.read_pickle('cached_dataframe.pkl')
-    plt.plot(data['valve (A) timestamp'][20:10000],data['valve (A) output value'][20:10000])
+    data=pd.read_pickle('cached_dataframe_edited.pkl')
+    plt.plot(data['valve (A) timestamp'][0:10000],data['valve (A) output value'][0:10000],label="A")
+    plt.plot(data['flow measurment (C) timestamp'][0:10000],data['flow measurment (C) value'][0:10000],label="C")
+    plt.legend()
     plt.show()
     print(data.keys())
 
 def ROC(Start,End):
     data = pd.read_pickle('cached_dataframe_edited.pkl')
-    A ,TimeA =  data['valve (A) output value'][Start:End] ,data['valve (A) timestamp'][Start:End]
-    C ,TimeC =  data['flow measurment (C) timestamp'][Start:End] ,data['flow measurment (C) value'][Start:End]
+    A ,TimeA =  data['valve (A) output value'][Start:End[0]] ,data['valve (A) timestamp'][Start:End[0]]
+    C ,TimeC =  data['flow measurment (C) timestamp'][Start:End[-1]] ,data['flow measurment (C) value'][Start:End[-1]]
     A = A.to_numpy()
     A = np.asarray(A)
-    for i in range(len(A)):
-        print(A[i])
-        A[i]=float(A[i])
+    C = C.to_numpy()
+    C = np.asarray(A)
     Errors = 0
     Adiff = np.diff(A)
     Cdiff = np.diff(C)
     Aedit = A[::5]
+    Cedit = C[::5]
     for i in range(len(Aedit)):
         if A[i]<5:
             Errors+=1
@@ -64,6 +66,6 @@ def ROC(Start,End):
 
 
 if __name__ == '__main__':
-    ROC(0,600000)
+    # ROC(0,End)
     # Removebad()
-    # Plot()
+    Plot()
