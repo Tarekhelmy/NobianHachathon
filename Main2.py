@@ -13,7 +13,7 @@ Names=['valve (A) timestamp', 'valve (A) output value',
 def filter(Signal,dt):
     order = 5
     sampling_freq = dt
-    cutoff_freq = 50
+    cutoff_freq = 20
     normalized_cutoff_freq = 2 * cutoff_freq / sampling_freq
     numerator_coeffs, denominator_coeffs = signal.butter(order, normalized_cutoff_freq)
     filtered_signal = signal.lfilter(numerator_coeffs, denominator_coeffs, Signal)
@@ -153,6 +153,7 @@ def get_classes(data,Start,End):
     plt.show()
 
     return class_1, class_2 , preclog_T,noclog_T
+
 
 if __name__ == '__main__':
     data = pd.read_pickle('cached_dataframe.pkl')
